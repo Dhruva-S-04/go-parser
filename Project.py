@@ -3,13 +3,9 @@ import ply.yacc as yacc
 
 # Define Go keywords
 go_keywords = {
-    'package': 'PACKAGE',
-    'import': 'IMPORT',
-    'func': 'FUNC',
     'var': 'VAR',
     'if': 'IF',
     'else': 'ELSE',
-    'return': 'RETURN',
     'for': 'FOR',
     'case': 'CASE',
     'default': 'DEFAULT',
@@ -62,7 +58,14 @@ def p_statements(p):
                    | for_statement
                    | switch_statement
                    | expression SEMICOLON
+                   | arithmetic_counter SEMICOLON
                    | expression ASSIGN expression SEMICOLON
+                   | if_statement statements
+                   | for_statement statements
+                   | switch_statement statements
+                   | expression SEMICOLON statements
+                   | arithmetic_counter SEMICOLON statements
+                   | expression ASSIGN expression SEMICOLON statements
                    | empty'''
 
 def p_declaration(p):
@@ -75,8 +78,17 @@ def p_if_statement(p):
                     | IF LPAREN expression RPAREN block ELSE if_statement'''
 
 def p_for_statement(p):
-    '''for_statement : FOR LPAREN expression SEMICOLON expression SEMICOLON expression RPAREN block'''
+    '''for_statement : FOR LPAREN expression SEMICOLON expression SEMICOLON expression RPAREN block
+                     | FOR LPAREN expression SEMICOLON expression SEMICOLON arithmetic_counter RPAREN block
+                     | FOR LPAREN initialization SEMICOLON expression SEMICOLON expression RPAREN block
+                     | FOR LPAREN initialization SEMICOLON expression SEMICOLON arithmetic_counter RPAREN block
+                     | FOR expression SEMICOLON expression SEMICOLON expression block
+    '''
 
+def p_initialization(p):
+    '''
+        initialization : ID COLON ASSIGN expression
+    '''
 def p_expression(p):
     '''expression : ID
                   | literal
@@ -84,7 +96,6 @@ def p_expression(p):
                   | arithmetic_expression
                   | LPAREN expression RPAREN
                   | expression ASSIGN expression 
-                  | expression ASSIGN expression SEMICOLON
                   '''
 
 def p_switch_statement(p):
@@ -92,10 +103,10 @@ def p_switch_statement(p):
     '''
 
 def p_case_statement(p):
-    '''case_statement : CASE expression COLON expression
-                      | CASE expression COLON expression case_statement
-                      | DEFAULT COLON expression
-                      | DEFAULT COLON expression case_statement
+    '''case_statement : CASE expression COLON expression SEMICOLON
+                      | CASE expression COLON expression SEMICOLON case_statement
+                      | DEFAULT COLON expression SEMICOLON 
+                      | DEFAULT COLON expression SEMICOLON case_statement
                       | empty
     '''
 
@@ -117,6 +128,11 @@ def p_arithmetic_expression(p):
                             | expression DIVIDE expression'''
     p[0] = True
 
+def p_arithmetic_counter(p):
+    '''
+      arithmetic_counter  : ID PLUS ASSIGN expression
+                          | ID MINUS ASSIGN expression
+    '''
 def p_block(p):
     '''block : LBRACE statements RBRACE'''
 
