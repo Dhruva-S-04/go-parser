@@ -46,11 +46,7 @@ To use the parser, follow these steps:
 Here's a simple example of using the `go-parser`:
 
 ```go
-package main
 
-import "fmt"
-
-func main() {
     x := 10
 
     if x > 5 {
@@ -73,6 +69,6 @@ func main() {
     default:
         a+=1;
     }
-}
+
 ```
 
